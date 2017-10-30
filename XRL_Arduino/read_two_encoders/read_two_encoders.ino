@@ -14,8 +14,19 @@
 #define KP .30
 #define KD 0.01
 #define KI 0
-#define FREQ 1000.0
+#define FREQ 100.0
 #define PERIOD 1.0/FREQ
+
+#define H1A A0
+#define H1B A1
+#define H1C A2
+#define H2A A3
+#define H2B A4
+#define H2C A5
+
+#define OFF1 0
+#define OFF2 0
+#define ENC2TICK (16384.0)/90.0//((8192)/45)
 
 float enc1 = 0;
 float enc1Prev = 0;
@@ -37,6 +48,13 @@ void setup() {
   clearEncoderCount();
   pinMode(5,OUTPUT);
   pinMode(6,OUTPUT);
+  pinMode(H1A, OUTPUT);
+  pinMode(H1B, OUTPUT);
+  pinMode(H1C, OUTPUT);
+  pinMode(H2A, OUTPUT);
+  pinMode(H2B, OUTPUT);
+  pinMode(H2C, OUTPUT);
+  
   setPwmFrequency(P_MOTOR1, 1024);
   setPwmFrequency(P_MOTOR2, 1024);
   
@@ -46,6 +64,9 @@ void setup() {
   enc2 = readAS5147P(2)*ENC2DEG;
   enc1Prev = enc1;
   enc2Prev = enc2;
+
+  //setHalls(enc1, OFF1, ENC2TICK, H1A. H1B, H1C);
+  setHalls(enc2, OFF2, ENC2TICK, H2A, H2B, H2C);
 }
 
 void loop() {
@@ -58,8 +79,14 @@ void loop() {
     if(dt>1.5*PERIOD){
       Serial.println("SLOW");
     }
-    enc1 = readAS5147P(1)*ENC2DEG;
-    enc2 = readAS5147P(2)*ENC2DEG;
+    enc1 = readAS5147P(1);
+    enc2 = readAS5147P(2);
+    
+    setHalls(enc1, OFF1, ENC2TICK,H1A, H1B, H1C);
+    //setHalls(enc2, OFF2, ENC2TICK,H2A, H2B, H2C);
+    enc1 = enc1*ENC2DEG;
+    enc2 = enc2*ENC2DEG;
+  
     dEnc1dt = (enc1-enc1Prev)/dt;
     dEnc2dt = (enc2-enc2Prev)/dt;
     cmd1 = -KP*(180-45-45*sin(t*1*(2*PI))-enc1)+KD*dEnc1dt;//centiamps
@@ -78,17 +105,18 @@ void loop() {
       analogWrite(P_MOTOR2, map(cmd2, -180, 180, 2,253));
     }
     
-    Serial.print(enc1);
-    Serial.print(" ");
-    Serial.print(enc2);
-    Serial.print(" ");
+//    Serial.print(enc1);
+//    Serial.print(" ");
+//    Serial.print(enc2);
+//    Serial.print(" ");
     //Serial.print(dEnc1dt);
     //Serial.print(" ");
     //Serial.print(dEnc2dt);
     //Serial.print(" ");
-    Serial.print(cmd1);
-    Serial.print(" ");
-    Serial.println(cmd2);
+//    Serial.print(cmd1);
+//    Serial.print(" ");
+//    Serial.print(cmd2);
+    Serial.println("");
     enc1Prev = enc1;
     enc2Prev = enc2;
   }

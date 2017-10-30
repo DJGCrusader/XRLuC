@@ -4,6 +4,12 @@
 const int slaveSelectEnc1 = 8;
 const int slaveSelectEnc2 = 9;
 
+const bool hallTable [3][6] = {
+   {1, 1, 0, 0, 0, 1},
+   {0, 1, 1, 1, 0, 0},
+   {0, 0, 0, 1, 1, 1}
+ };
+
 void initEncoders() {
   
   // Set slave selects as outputs
@@ -39,6 +45,19 @@ void initEncoders() {
   SPI.transfer(0x03);                       // Configure to 4 byte mode
   digitalWrite(slaveSelectEnc2,HIGH);       // Terminate SPI conversation 
 
+}
+
+void setHalls(int angle, int offset, int toTicks, int PA, int PB, int PC){
+  int state = ((angle+offset)/(toTicks))%6;
+//  Serial.print(hallTable[0][state]);
+//  Serial.print(" ");
+//  Serial.print(hallTable[1][state]+1.1);
+//  Serial.print(" ");
+//  Serial.print(hallTable[2][state]+2.2);
+//  Serial.print(" ");
+  digitalWrite(PA, hallTable[0][state]);
+  digitalWrite(PB, hallTable[1][state]);
+  digitalWrite(PC, hallTable[2][state]);
 }
 
 
